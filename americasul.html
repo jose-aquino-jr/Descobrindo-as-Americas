@@ -677,6 +677,40 @@
     </footer>
 
     <script>
+
+        // VERIFICAÇÃO DE LOGIN - ADICIONE ESTE CÓDIGO NO INÍCIO DO SCRIPT
+const BACKEND_URL = 'https://backend-quiz-tgd1.onrender.com';
+
+function checkQuizAccess() {
+    const userData = localStorage.getItem('quizUser');
+    if (!userData) {
+        // Não está logado, redirecionar para login
+        window.location.href = 'login.html';
+        return false;
+    }
+    
+    const user = JSON.parse(userData);
+    const now = new Date().getTime();
+    
+    // Verificar se o login ainda é válido (24 horas)
+    if (!user.loggedIn || (now - user.timestamp) >= 24 * 60 * 60 * 1000) {
+        localStorage.removeItem('quizUser');
+        window.location.href = 'login.html';
+        return false;
+    }
+    
+    return true;
+}
+
+// Verificar acesso antes de inicializar o quiz
+if (!checkQuizAccess()) {
+    // Para a execução se não estiver logado
+    throw new Error('Usuário não logado');
+}
+
+// Resto do seu código atual continua aqui...
+console.log('Usuário logado:', JSON.parse(localStorage.getItem('quizUser')));
+        
         document.addEventListener('DOMContentLoaded', function() {
             // Elementos do DOM
             const options = document.querySelectorAll('.option');
@@ -898,4 +932,5 @@
         });
     </script>
 </body>
+
 </html>
