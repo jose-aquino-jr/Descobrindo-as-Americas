@@ -172,7 +172,7 @@
         .progress-fill {
             height: 100%;
             background: linear-gradient(to right, var(--azul-medio), var(--azul-claro));
-            width: 20%; /* Isso será ajustado via JavaScript */
+            width: 0%;
             transition: width 0.5s ease;
             border-radius: 10px;
         }
@@ -309,6 +309,18 @@
             box-shadow: 0 6px 20px rgba(255, 152, 0, 0.4);
         }
 
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn:disabled:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
         .btn-outline {
             background-color: transparent;
             border: 2px solid var(--azul-claro);
@@ -321,15 +333,14 @@
             color: var(--branco);
         }
 
-        .btn-disabled {
+        .btn-outline:disabled {
             opacity: 0.6;
             cursor: not-allowed;
-            background-color: var(--cinza);
         }
 
-        .btn-disabled:hover {
-            transform: none;
-            box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);
+        .btn-outline:disabled:hover {
+            background-color: transparent;
+            color: var(--azul-claro);
         }
 
         /* Modal de Resultados */
@@ -551,6 +562,21 @@
                 padding: 2rem;
             }
         }
+
+        /* Loading State */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
@@ -586,11 +612,11 @@
     <section class="quiz-progress">
         <div class="container">
             <div class="progress-container">
-                <div class="progress-text">Pergunta 1 de 5</div>
+                <div class="progress-text" id="progress-text-current">Pergunta 1 de 5</div>
                 <div class="progress-bar">
-                    <div class="progress-fill" style="width: 20%"></div>
+                    <div class="progress-fill" style="width: 0%"></div>
                 </div>
-                <div class="progress-text">Pontuação: 0</div>
+                <div class="progress-text" id="progress-text-score">Pontuação: 0</div>
             </div>
         </div>
     </section>
@@ -599,31 +625,31 @@
     <section class="quiz-area">
         <div class="container">
             <div class="question-card fade-in">
-                <div class="question-number">Pergunta 1</div>
-                <h2 class="question-text">Qual é o maior país da América do Sul em área territorial?</h2>
+                <div class="question-number" id="question-number">Pergunta 1</div>
+                <h2 class="question-text" id="question-text">Carregando perguntas...</h2>
                 
-                <div class="options-container">
+                <div class="options-container" id="options-container">
                     <div class="option" data-option="1">
                         <span class="option-letter">A</span>
-                        <span class="option-text">Argentina</span>
+                        <span class="option-text" id="option-text-1">Carregando...</span>
                     </div>
                     <div class="option" data-option="2">
                         <span class="option-letter">B</span>
-                        <span class="option-text">Brasil</span>
+                        <span class="option-text" id="option-text-2">Carregando...</span>
                     </div>
                     <div class="option" data-option="3">
                         <span class="option-letter">C</span>
-                        <span class="option-text">Peru</span>
+                        <span class="option-text" id="option-text-3">Carregando...</span>
                     </div>
                     <div class="option" data-option="4">
                         <span class="option-letter">D</span>
-                        <span class="option-text">Colômbia</span>
+                        <span class="option-text" id="option-text-4">Carregando...</span>
                     </div>
                 </div>
                 
                 <div class="navigation-buttons">
                     <button class="btn btn-outline" id="prev-btn" disabled>Anterior</button>
-                    <button class="btn" id="next-btn">Próxima</button>
+                    <button class="btn" id="next-btn" disabled>Próxima</button>
                     <button class="btn" id="submit-btn" style="display: none;">Finalizar Quiz</button>
                 </div>
             </div>
@@ -635,8 +661,8 @@
         <div class="modal-content">
             <h2>Quiz Finalizado!</h2>
             <p>Sua pontuação:</p>
-            <div class="score-display">3/5</div>
-            <p class="score-text">Parabéns! Você demonstrou bons conhecimentos sobre a América do Sul.</p>
+            <div class="score-display" id="final-score">0/5</div>
+            <p class="score-text" id="score-message">Parabéns! Você demonstrou bons conhecimentos sobre a América do Sul.</p>
             <div class="modal-buttons">
                 <a href="index.html#quiz" class="btn btn-outline">Voltar aos Quizzes</a>
                 <button class="btn" id="restart-btn">Tentar Novamente</button>
@@ -675,15 +701,21 @@
             </div>
         </div>
     </footer>
-
-   <script>
-    // ========== VERIFICAÇÃO DE LOGIN ==========
+    <script>
+    // ========== CONFIGURAÇÕES ==========
     const BACKEND_URL = 'https://backend-quiz-tgd1.onrender.com';
 
+    // ========== VARIÁVEIS GLOBAIS DO QUIZ ==========
+    let quizData = [];
+    let currentQuestion = 0;
+    let score = 0;
+    let userAnswers = [];
+    let sessionId = null;
+
+    // ========== VERIFICAÇÃO DE LOGIN ==========
     function checkQuizAccess() {
         const userData = localStorage.getItem('quizUser');
         console.log('🔍 Verificando acesso ao quiz...');
-        console.log('Dados do localStorage:', userData);
         
         if (!userData) {
             console.log('❌ Nenhum usuário logado encontrado - Redirecionando para login');
@@ -695,7 +727,6 @@
             const user = JSON.parse(userData);
             const now = new Date().getTime();
             
-            // Verificar se o login ainda é válido (24 horas)
             if (!user.loggedIn || (now - user.timestamp) >= 24 * 60 * 60 * 1000) {
                 console.log('❌ Login expirado ou inválido - Redirecionando para login');
                 localStorage.removeItem('quizUser');
@@ -713,7 +744,460 @@
         }
     }
 
+    // ========== CARREGAMENTO DE PERGUNTAS ALEATÓRIAS ==========
+    // ========== CARREGAMENTO DE PERGUNTAS ALEATÓRIAS ==========
+async function carregarPerguntas() {
+    try {
+        console.log('🎲 Carregando perguntas ALEATÓRIAS do backend...');
+        
+        // Usar "sul" no título em vez do tipo
+        const response = await fetch(`${BACKEND_URL}/api/perguntas/sul?limit=5`);
+        
+        console.log('📊 Status da resposta:', response.status);
+        console.log('🔗 URL da requisição:', `${BACKEND_URL}/api/perguntas/sul?limit=5`);
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('❌ Erro HTTP:', response.status, errorText);
+            throw new Error(`Erro HTTP: ${response.status} - ${errorText}`);
+        }
+        
+        const perguntasBackend = await response.json();
+        console.log('✅ Resposta do backend recebida:', perguntasBackend);
+
+        if (!perguntasBackend || perguntasBackend.length === 0) {
+            throw new Error('Nenhuma pergunta encontrada no banco de dados');
+        }
+
+        console.log(`📚 ${perguntasBackend.length} perguntas recebidas do backend`);
+
+        // Converter formato do backend para o formato esperado pelo frontend
+        const perguntasConvertidas = perguntasBackend.map((pergunta, index) => {
+            // Verificar se a resposta correta é válida
+            const respostaCorreta = pergunta.resposta_correta;
+            const indiceCorreto = ['A', 'B', 'C', 'D'].indexOf(respostaCorreta);
+            
+            if (indiceCorreto === -1) {
+                console.warn('⚠️ Resposta correta inválida:', respostaCorreta);
+                return null;
+            }
+
+            return {
+                id: pergunta.id,
+                question: pergunta.pergunta,
+                options: pergunta.opcoes,
+                correct: indiceCorreto,
+                explanation: pergunta.explicacao
+            };
+        }).filter(pergunta => pergunta !== null);
+
+        if (perguntasConvertidas.length === 0) {
+            throw new Error('Nenhuma pergunta válida encontrada');
+        }
+
+        console.log(`🎉 ${perguntasConvertidas.length} perguntas válidas processadas`);
+        return perguntasConvertidas;
+
+    } catch (error) {
+        console.error('❌ Erro ao carregar perguntas:', error);
+        
+        // Fallback: usar perguntas locais
+        console.log('🔄 Usando perguntas locais como fallback');
+        return [
+            {
+                id: '1',
+                question: "Qual é o maior país da América do Sul em área territorial?",
+                options: ["Argentina", "Brasil", "Peru", "Colômbia"],
+                correct: 1,
+                explanation: "O Brasil é o maior país da América do Sul com aproximadamente 8,5 milhões de km²."
+            },
+            // ... outras perguntas locais
+        ];
+    }
+}
+
     // ========== INICIALIZAÇÃO DO QUIZ ==========
+    async function initQuiz() {
+        console.log('🎯 Inicializando quiz...');
+        
+        try {
+            // Carregar perguntas ALEATÓRIAS
+            console.log('📥 Iniciando carregamento de perguntas...');
+            quizData = await carregarPerguntas();
+            console.log('📋 Perguntas carregadas:', quizData.length);
+            
+            if (quizData.length === 0) {
+                alert('Erro ao carregar perguntas. Tente novamente mais tarde.');
+                return;
+            }
+            
+            // Inicializar array de respostas
+            userAnswers = new Array(quizData.length).fill(null);
+            
+            // Criar sessão no backend (opcional)
+            await criarSessaoQuiz();
+            
+            // Mostrar primeira pergunta
+            showQuestion(0);
+            updateProgress();
+            
+            // Habilitar botão próxima
+            document.getElementById('next-btn').disabled = false;
+            
+            console.log('✅ Quiz inicializado com sucesso');
+            
+        } catch (error) {
+            console.error('❌ Erro na inicialização do quiz:', error);
+            alert('Erro ao carregar o quiz. Verifique o console para mais detalhes.');
+        }
+    }
+
+    // ========== CRIAÇÃO DE SESSÃO ==========
+    async function criarSessaoQuiz() {
+        try {
+            const userData = JSON.parse(localStorage.getItem('quizUser'));
+            if (!userData || !userData.id) {
+                console.log('⚠️ Usuário não encontrado para criar sessão');
+                return;
+            }
+            
+            console.log('📝 Tentando criar sessão de quiz para usuário:', userData.nome);
+            
+            // Buscar o ID do quiz "América do Sul"
+            const quizResponse = await fetch(`${BACKEND_URL}/api/quizzes`);
+            if (quizResponse.ok) {
+                const quizzes = await quizResponse.json();
+                console.log('🎯 Quizzes disponíveis:', quizzes);
+                
+                const quizSul = quizzes.find(q => 
+                    q.tipo === 'america_sul' || 
+                    q.tipo === 'americasul' ||
+                    q.titulo?.toLowerCase().includes('américa') ||
+                    q.titulo?.toLowerCase().includes('sul')
+                );
+                
+                if (!quizSul) {
+                    console.log('⚠️ Quiz América do Sul não encontrado');
+                    return;
+                }
+
+                console.log('🎯 Quiz encontrado:', quizSul.titulo, '- ID:', quizSul.id);
+
+                // Criar sessão de quiz
+                const sessaoResponse = await fetch(`${BACKEND_URL}/api/sessao-quiz`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        usuario_id: userData.id,
+                        quiz_id: quizSul.id
+                    })
+                });
+
+                if (sessaoResponse.ok) {
+                    const sessaoData = await sessaoResponse.json();
+                    if (sessaoData.success) {
+                        sessionId = sessaoData.sessao.id;
+                        console.log('✅ Sessão criada:', sessionId);
+                    }
+                } else {
+                    console.error('❌ Erro ao criar sessão:', sessaoResponse.status);
+                }
+            }
+        } catch (error) {
+            console.error('❌ Erro ao criar sessão:', error);
+        }
+    }
+
+    // ========== FUNÇÕES DO QUIZ ==========
+    function showQuestion(index) {
+        const question = quizData[index];
+        document.getElementById('question-number').textContent = `Pergunta ${index + 1}`;
+        document.getElementById('question-text').textContent = question.question;
+        
+        // Atualizar opções
+        for (let i = 0; i < 4; i++) {
+            document.getElementById(`option-text-${i + 1}`).textContent = question.options[i];
+        }
+        
+        // Verificar se o usuário já respondeu esta pergunta
+        if (userAnswers[index] !== null) {
+            selectOption(userAnswers[index] + 1);
+        } else {
+            // Desselecionar todas as opções
+            document.querySelectorAll('.option').forEach(opt => {
+                opt.classList.remove('selected', 'correct', 'incorrect');
+            });
+        }
+        
+        // Atualizar visibilidade dos botões
+        document.getElementById('prev-btn').disabled = index === 0;
+        document.getElementById('next-btn').style.display = index < quizData.length - 1 ? 'block' : 'none';
+        document.getElementById('submit-btn').style.display = index === quizData.length - 1 ? 'block' : 'none';
+    }
+    
+    function selectOption(optionNumber) {
+        // Desselecionar todas as opções
+        document.querySelectorAll('.option').forEach(opt => {
+            opt.classList.remove('selected', 'correct', 'incorrect');
+        });
+        
+        // Selecionar a opção clicada
+        const selectedOption = document.querySelector(`.option[data-option="${optionNumber}"]`);
+        selectedOption.classList.add('selected');
+        
+        // Salvar resposta do usuário
+        userAnswers[currentQuestion] = optionNumber - 1;
+        
+        // Salvar resposta no backend se houver sessão
+        if (sessionId) {
+            salvarRespostaBackend(optionNumber - 1);
+        }
+        
+        updateProgress();
+    }
+    
+    async function salvarRespostaBackend(respostaIndex) {
+        try {
+            const respostaLetra = ['A', 'B', 'C', 'D'][respostaIndex];
+            const perguntaAtual = quizData[currentQuestion];
+            
+            console.log('💾 Salvando resposta:', {
+                sessao_id: sessionId,
+                pergunta_id: perguntaAtual.id,
+                resposta: respostaLetra
+            });
+            
+            await fetch(`${BACKEND_URL}/api/resposta`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    sessao_id: sessionId,
+                    pergunta_id: perguntaAtual.id,
+                    resposta_usuario: respostaLetra,
+                    tempo_resposta: Math.floor(Math.random() * 30) + 10
+                })
+            });
+        } catch (error) {
+            console.error('❌ Erro ao salvar resposta no backend:', error);
+        }
+    }
+    
+    function updateProgress() {
+        const progress = ((currentQuestion + 1) / quizData.length) * 100;
+        document.querySelector('.progress-fill').style.width = `${progress}%`;
+        
+        // Calcular pontuação atual
+        score = 0;
+        userAnswers.forEach((answer, index) => {
+            if (answer !== null && answer === quizData[index].correct) {
+                score++;
+            }
+        });
+        
+        // Atualizar texto de progresso
+        document.getElementById('progress-text-current').textContent = `Pergunta ${currentQuestion + 1} de ${quizData.length}`;
+        document.getElementById('progress-text-score').textContent = `Pontuação: ${score}`;
+    }
+    
+    function nextQuestion() {
+        if (currentQuestion < quizData.length - 1) {
+            currentQuestion++;
+            showQuestion(currentQuestion);
+            updateProgress();
+        }
+    }
+    
+    function prevQuestion() {
+        if (currentQuestion > 0) {
+            currentQuestion--;
+            showQuestion(currentQuestion);
+            updateProgress();
+        }
+    }
+    
+    async function finishQuiz() {
+        console.log('🏁 Finalizando quiz...');
+        
+        // Calcular pontuação final
+        score = 0;
+        userAnswers.forEach((answer, index) => {
+            if (answer !== null && answer === quizData[index].correct) {
+                score++;
+            }
+        });
+        
+        console.log(`📊 Pontuação calculada: ${score}/${quizData.length}`);
+        
+        // Tentar enviar pontuação para o backend
+        try {
+            const enviado = await enviarPontuacao(score, quizData.length);
+            
+            if (enviado) {
+                console.log('✅ Pontuação salva no banco de dados');
+            } else {
+                console.log('⚠️ Pontuação salva apenas localmente');
+            }
+        } catch (error) {
+            console.error('❌ Erro ao enviar pontuação:', error);
+        }
+        
+        // Atualizar modal com resultados
+        document.getElementById('final-score').textContent = `${score}/${quizData.length}`;
+        
+        // Mensagem personalizada baseada na pontuação
+        let message = "";
+        if (score === quizData.length) {
+            message = "Excelente! Você é um expert em América do Sul! 🎉";
+        } else if (score >= quizData.length * 0.7) {
+            message = "Parabéns! Você demonstrou bons conhecimentos sobre a América do Sul. 👏";
+        } else if (score >= quizData.length * 0.5) {
+            message = "Bom trabalho! Continue aprendendo sobre a América do Sul. 💪";
+        } else {
+            message = "Continue estudando! Você pode melhorar no próximo quiz. 📚";
+        }
+        
+        document.getElementById('score-message').textContent = message;
+        
+        // Mostrar modal
+        document.getElementById('results-modal').style.display = "flex";
+    }
+
+    // ========== ENVIO DE PONTUAÇÃO ==========
+    async function enviarPontuacao(score, totalQuestions) {
+    try {
+        const userData = JSON.parse(localStorage.getItem('quizUser'));
+        if (!userData) {
+            console.error('Usuário não encontrado no localStorage');
+            return false;
+        }
+
+        console.log('💾 Tentando salvar pontuação no backend...');
+
+        // Buscar o ID do quiz "América do Sul"
+        const quizResponse = await fetch(`${BACKEND_URL}/api/quizzes`);
+        if (quizResponse.ok) {
+            const quizzes = await quizResponse.json();
+            const quizSul = quizzes.find(q => 
+                q.tipo === 'america_sul' || 
+                q.tipo === 'americasul' ||
+                q.titulo?.toLowerCase().includes('américa') ||
+                q.titulo?.toLowerCase().includes('sul')
+            );
+            
+            if (!quizSul) {
+                console.error('❌ Quiz América do Sul não encontrado');
+                return false;
+            }
+
+            console.log('🎯 Quiz encontrado:', quizSul.titulo);
+
+            // Finalizar quiz e salvar pontuação (AGORA COM ACÚMULO)
+            console.log('📤 Enviando pontuação final...');
+            const pontuacaoResponse = await fetch(`${BACKEND_URL}/api/finalizar-quiz`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    sessao_id: sessionId,
+                    quiz_id: quizSul.id,
+                    usuario_id: userData.id,
+                    pontuacao: score,
+                    total_perguntas: totalQuestions,
+                    tempo_total: Math.floor(Math.random() * 300) + 180
+                })
+            });
+
+            if (pontuacaoResponse.ok) {
+                const pontuacaoData = await pontuacaoResponse.json();
+                console.log('✅ Pontuação processada:', pontuacaoData);
+                
+                // MOSTRAR PONTUAÇÃO ACUMULADA NO MODAL
+                if (pontuacaoData.acumulado) {
+                    console.log('📈 Pontuação acumulada!');
+                    // Atualiza o modal para mostrar a pontuação acumulada
+                    document.getElementById('final-score').textContent = 
+                        `${pontuacaoData.estatisticas.respostas_corretas} pontos (acumulado)`;
+                } else {
+                    document.getElementById('final-score').textContent = 
+                        `${score}/${totalQuestions}`;
+                }
+                
+                // Atualizar ranking local
+               
+                return true;
+            } else {
+                console.error('❌ Erro na resposta do servidor:', pontuacaoResponse.status);
+                return false;
+            }
+        }
+        return false;
+    } catch (error) {
+        console.error('❌ Erro ao enviar pontuação:', error);
+        // Fallback: salvar localmente
+        const userData = localStorage.getItem('quizUser');
+        if (userData) {
+            const user = JSON.parse(userData);
+            atualizarRankingLocal(user.nome, score, 'América do Sul');
+        }
+        return false;
+    }
+}
+    function atualizarRankingLocal(nome, pontuacao, quiz) {
+    let rankingData = JSON.parse(localStorage.getItem('quizRanking')) || [];
+    
+    // Verificar se já existe uma entrada para este usuário
+    const existingIndex = rankingData.findIndex(item => 
+        item.nome === nome && item.quiz === quiz
+    );
+    
+    if (existingIndex !== -1) {
+        // Atualizar pontuação existente (manter a maior)
+        if (pontuacao > rankingData[existingIndex].pontuacao) {
+            rankingData[existingIndex].pontuacao = pontuacao;
+            rankingData[existingIndex].data = new Date().toISOString();
+        }
+    } else {
+        // Adicionar nova pontuação
+        rankingData.push({
+            nome: nome,
+            pontuacao: pontuacao,
+            quiz: quiz,
+            data: new Date().toISOString(),
+            fonte: 'local'
+        });
+    }
+    
+    // Ordenar por pontuação (maior para menor)
+    rankingData.sort((a, b) => b.pontuacao - a.pontuacao);
+    
+    // Manter apenas as 10 melhores pontuações
+    rankingData = rankingData.slice(0, 10);
+    
+    localStorage.setItem('quizRanking', JSON.stringify(rankingData));
+    console.log('📊 Ranking local atualizado:', rankingData);
+}
+    
+    function restartQuiz() {
+        console.log('🔄 Reiniciando quiz...');
+        currentQuestion = 0;
+        score = 0;
+        userAnswers = new Array(quizData.length).fill(null);
+        showQuestion(0);
+        updateProgress();
+        document.getElementById('results-modal').style.display = "none";
+        
+        // Recarregar perguntas aleatórias
+        setTimeout(async () => {
+            await initQuiz();
+        }, 500);
+    }
+
+    // ========== EVENT LISTENERS E INICIALIZAÇÃO ==========
     document.addEventListener('DOMContentLoaded', function() {
         console.log('🚀 Inicializando quiz...');
         
@@ -723,65 +1207,15 @@
             return;
         }
 
-        console.log('✅ Acesso permitido - inicializando quiz');
-
-        // Elementos do DOM
-        const options = document.querySelectorAll('.option');
-        const nextBtn = document.getElementById('next-btn');
-        const prevBtn = document.getElementById('prev-btn');
-        const submitBtn = document.getElementById('submit-btn');
-        const progressFill = document.querySelector('.progress-fill');
-        const progressTexts = document.querySelectorAll('.progress-text');
-        const questionNumber = document.querySelector('.question-number');
-        const questionText = document.querySelector('.question-text');
-        const resultsModal = document.getElementById('results-modal');
-        const restartBtn = document.getElementById('restart-btn');
-        const menuToggle = document.getElementById('menuToggle');
-        const navLinks = document.querySelector('.nav-links');
-        
-        // Dados do quiz (em um caso real, viriam de um backend)
-        const quizData = [
-            {
-                question: "Qual é o maior país da América do Sul em área territorial?",
-                options: ["Argentina", "Brasil", "Peru", "Colômbia"],
-                correct: 1
-            },
-            {
-                question: "Qual é a capital do Chile?",
-                options: ["Santiago", "Lima", "Buenos Aires", "Montevidéu"],
-                correct: 0
-            },
-            {
-                question: "Qual desses países não faz fronteira com o Brasil?",
-                options: ["Equador", "Venezuela", "Colômbia", "Peru"],
-                correct: 0
-            },
-            {
-                question: "Qual é o principal idioma falado na Guiana?",
-                options: ["Espanhol", "Francês", "Inglês", "Holandês"],
-                correct: 2
-            },
-            {
-                question: "Qual é a montanha mais alta da América do Sul?",
-                options: ["Monte Aconcágua", "Pico da Neblina", "Monte Chimborazo", "Monte Roraima"],
-                correct: 0
-            }
-        ];
-        
-        // Estado do quiz
-        let currentQuestion = 0;
-        let score = 0;
-        let userAnswers = new Array(quizData.length).fill(null);
-        
         // Menu mobile toggle
-        menuToggle.addEventListener('click', function() {
-            navLinks.classList.toggle('active');
+        document.getElementById('menuToggle').addEventListener('click', function() {
+            document.querySelector('.nav-links').classList.toggle('active');
         });
 
         // Fechar menu ao clicar em um link
         document.querySelectorAll('.nav-links a').forEach(link => {
             link.addEventListener('click', () => {
-                navLinks.classList.remove('active');
+                document.querySelector('.nav-links').classList.remove('active');
             });
         });
 
@@ -803,149 +1237,21 @@
             });
         });
         
-        // Inicializar quiz
-        function initQuiz() {
-            showQuestion(0);
-            updateProgress();
-            console.log('🎯 Quiz inicializado com sucesso');
-        }
-        
-        // Mostrar pergunta
-        function showQuestion(index) {
-            const question = quizData[index];
-            questionNumber.textContent = `Pergunta ${index + 1}`;
-            questionText.textContent = question.question;
-            
-            const options = document.querySelectorAll('.option-text');
-            options.forEach((option, i) => {
-                option.textContent = question.options[i];
-            });
-            
-            // Verificar se o usuário já respondeu esta pergunta
-            if (userAnswers[index] !== null) {
-                selectOption(userAnswers[index] + 1);
-            } else {
-                // Desselecionar todas as opções
-                document.querySelectorAll('.option').forEach(opt => {
-                    opt.classList.remove('selected', 'correct', 'incorrect');
-                });
-            }
-            
-            // Atualizar visibilidade dos botões
-            prevBtn.disabled = index === 0;
-            nextBtn.style.display = index < quizData.length - 1 ? 'block' : 'none';
-            submitBtn.style.display = index === quizData.length - 1 ? 'block' : 'none';
-        }
-        
-        // Selecionar opção
-        function selectOption(optionNumber) {
-            // Desselecionar todas as opções
-            document.querySelectorAll('.option').forEach(opt => {
-                opt.classList.remove('selected', 'correct', 'incorrect');
-            });
-            
-            // Selecionar a opção clicada
-            const selectedOption = document.querySelector(`.option[data-option="${optionNumber}"]`);
-            selectedOption.classList.add('selected');
-            
-            // Salvar resposta do usuário
-            userAnswers[currentQuestion] = optionNumber - 1;
-        }
-        
-        // Atualizar barra de progresso
-        function updateProgress() {
-            const progress = ((currentQuestion + 1) / quizData.length) * 100;
-            progressFill.style.width = `${progress}%`;
-            
-            // Calcular pontuação atual
-            score = 0;
-            userAnswers.forEach((answer, index) => {
-                if (answer !== null && answer === quizData[index].correct) {
-                    score++;
-                }
-            });
-            
-            // Atualizar texto de progresso
-            progressTexts[0].textContent = `Pergunta ${currentQuestion + 1} de ${quizData.length}`;
-            progressTexts[1].textContent = `Pontuação: ${score}`;
-        }
-        
-        // Avançar para a próxima pergunta
-        function nextQuestion() {
-            if (currentQuestion < quizData.length - 1) {
-                currentQuestion++;
-                showQuestion(currentQuestion);
-                updateProgress();
-            }
-        }
-        
-        // Voltar para a pergunta anterior
-        function prevQuestion() {
-            if (currentQuestion > 0) {
-                currentQuestion--;
-                showQuestion(currentQuestion);
-                updateProgress();
-            }
-        }
-        
-        // Finalizar quiz
-        function finishQuiz() {
-            // Calcular pontuação final
-            score = 0;
-            userAnswers.forEach((answer, index) => {
-                if (answer !== null && answer === quizData[index].correct) {
-                    score++;
-                }
-            });
-            
-            // Atualizar modal com resultados
-            document.querySelector('.score-display').textContent = `${score}/${quizData.length}`;
-            
-            // Mensagem personalizada baseada na pontuação
-            let message = "";
-            if (score === quizData.length) {
-                message = "Excelente! Você é um expert em América do Sul!";
-            } else if (score >= quizData.length * 0.7) {
-                message = "Parabéns! Você demonstrou bons conhecimentos sobre a América do Sul.";
-            } else if (score >= quizData.length * 0.5) {
-                message = "Bom trabalho! Continue aprendendo sobre a América do Sul.";
-            } else {
-                message = "Continue estudando! Você pode melhorar no próximo quiz.";
-            }
-            
-            document.querySelector('.score-text').textContent = message;
-            
-            // Mostrar modal
-            resultsModal.style.display = "flex";
-        }
-        
-        // Reiniciar quiz
-        function restartQuiz() {
-            currentQuestion = 0;
-            score = 0;
-            userAnswers = new Array(quizData.length).fill(null);
-            showQuestion(0);
-            updateProgress();
-            resultsModal.style.display = "none";
-        }
-        
-        // Event Listeners
-        options.forEach(option => {
+        // Event Listeners do Quiz
+        document.querySelectorAll('.option').forEach(option => {
             option.addEventListener('click', function() {
                 selectOption(parseInt(this.getAttribute('data-option')));
             });
         });
         
-        nextBtn.addEventListener('click', nextQuestion);
-        prevBtn.addEventListener('click', prevQuestion);
-        submitBtn.addEventListener('click', finishQuiz);
-        restartBtn.addEventListener('click', restartQuiz);
+        document.getElementById('next-btn').addEventListener('click', nextQuestion);
+        document.getElementById('prev-btn').addEventListener('click', prevQuestion);
+        document.getElementById('submit-btn').addEventListener('click', finishQuiz);
+        document.getElementById('restart-btn').addEventListener('click', restartQuiz);
         
         // Inicializar o quiz
         initQuiz();
     });
 </script>
 </body>
-
 </html>
-
