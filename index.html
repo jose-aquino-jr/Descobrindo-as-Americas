@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -333,6 +334,25 @@
         .ranking {
             background-color: var(--branco);
         }
+        /* Loading State */
+.loading {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(10, 36, 99, 0.3);
+    border-radius: 50%;
+    border-top-color: var(--azul-escuro);
+    animation: spin 1s ease-in-out infinite;
+    margin-right: 10px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.ranking-table td {
+    vertical-align: middle;
+}
 
         .ranking-table-container {
             overflow-x: auto;
@@ -612,7 +632,7 @@
             <h1 class="fade-in">Teste seus conhecimentos sobre a América</h1>
             <p class="fade-in delay-1">Desafie-se com nossos quizzes sobre países, culturas e curiosidades das Américas do Norte, Central e Sul.</p>
             <div class="btn-container fade-in delay-2">
-                <a href="#" class="btn" id="startQuizBtn">Começar Quiz</a>
+                <a href="americasul.html" class="btn" id="startQuizBtn">Começar Quiz</a>
                 <a href="#sobre" class="btn btn-secondary">Saiba Mais</a>
             </div>
         </div>
@@ -646,7 +666,7 @@
                     <div class="quiz-card-content">
                         <h3>América do Sul</h3>
                         <p>Teste seus conhecimentos sobre os países, capitais e curiosidades da América do Sul.</p>
-                        <a href="#" class="btn quiz-link" data-quiz="americasul">Iniciar Quiz</a>
+                        <a href="americasul.html" class="btn quiz-link" data-quiz="americasul">Iniciar Quiz</a>
                     </div>
                 </div>
 
@@ -733,56 +753,61 @@
     <script>
         // Verificar se o usuário está logado
         function checkLogin() {
-            const userData = localStorage.getItem('quizUser');
-            const userInfoItem = document.getElementById('userInfoItem');
-            const loginItem = document.getElementById('loginItem');
-            const userName = document.getElementById('userName');
-            const startQuizBtn = document.getElementById('startQuizBtn');
-            const quizLinks = document.querySelectorAll('.quiz-link');
+    const userData = localStorage.getItem('quizUser');
+    const userInfoItem = document.getElementById('userInfoItem');
+    const loginItem = document.getElementById('loginItem');
+    const userName = document.getElementById('userName');
+    const startQuizBtn = document.getElementById('startQuizBtn');
+    const quizLinks = document.querySelectorAll('.quiz-link');
+    
+    if (userData) {
+        try {
+            const user = JSON.parse(userData);
+            const now = new Date().getTime();
             
-            if (userData) {
-                const user = JSON.parse(userData);
-                const now = new Date().getTime();
+            // Verificar se o login ainda é válido (24 horas)
+            if (user.loggedIn && (now - user.timestamp) < 24 * 60 * 60 * 1000) {
+                // Usuário logado
+                userInfoItem.style.display = 'block';
+                loginItem.style.display = 'none';
+                userName.textContent = user.nome;
+                startQuizBtn.href = 'americasul.html';
                 
-                // Verificar se o login ainda é válido (24 horas)
-                if (user.loggedIn && (now - user.timestamp) < 24 * 60 * 60 * 1000) {
-                    // Usuário logado
-                    userInfoItem.style.display = 'block';
-                    loginItem.style.display = 'none';
-                    userName.textContent = user.nome;
-                    startQuizBtn.href = 'quiz-americasul.html';
-                    
-                    // Atualizar links dos quizzes
-                    quizLinks.forEach(link => {
-                        link.href = `${link.dataset.quiz}.html`;
-                    });
-                } else {
-                    // Login expirado
-                    localStorage.removeItem('quizUser');
-                    userInfoItem.style.display = 'none';
-                    loginItem.style.display = 'block';
-                    startQuizBtn.href = 'login.html';
-                    
-                    // Atualizar links dos quizzes para login
-                    quizLinks.forEach(link => {
-                        link.href = 'login.html';
-                    });
-                }
-            } else {
-                // Não logado
-                userInfoItem.style.display = 'none';
-                loginItem.style.display = 'block';
-                startQuizBtn.href = 'login.html';
-                
-                // Atualizar links dos quizzes para login
+                // Atualizar links dos quizzes
                 quizLinks.forEach(link => {
-                    link.href = 'login.html';
+                    if (link.dataset.quiz === 'americasul') {
+                        link.href = 'americasul.html';
+                    }
                 });
+            } else {
+                // Login expirado
+                localStorage.removeItem('quizUser');
+                handleNotLoggedIn(userInfoItem, loginItem, startQuizBtn, quizLinks);
             }
-            
-            // Carregar ranking
-            loadRanking();
+        } catch (error) {
+            console.error('Erro ao verificar login:', error);
+            localStorage.removeItem('quizUser');
+            handleNotLoggedIn(userInfoItem, loginItem, startQuizBtn, quizLinks);
         }
+    } else {
+        // Não logado
+        handleNotLoggedIn(userInfoItem, loginItem, startQuizBtn, quizLinks);
+    }
+    
+    // Carregar ranking
+    loadRanking();
+}
+
+function handleNotLoggedIn(userInfoItem, loginItem, startQuizBtn, quizLinks) {
+    userInfoItem.style.display = 'none';
+    loginItem.style.display = 'block';
+    startQuizBtn.href = 'login.html';
+    
+    // Atualizar links dos quizzes para login
+    quizLinks.forEach(link => {
+        link.href = 'login.html';
+    });
+}
         
         // Logout
         document.getElementById('logoutBtn').addEventListener('click', function() {
@@ -790,51 +815,147 @@
             checkLogin();
         });
         
-        // Carregar ranking
-        function loadRanking() {
-            const rankingBody = document.getElementById('rankingBody');
-            
-            // Obter dados do ranking do localStorage
-            let rankingData = JSON.parse(localStorage.getItem('quizRanking')) || [];
-            
-            // Ordenar por pontuação (maior para menor)
-            rankingData.sort((a, b) => b.pontuacao - a.pontuacao);
-            
-            // Limpar tabela
-            rankingBody.innerHTML = '';
-            
-            // Adicionar dados ao ranking
-            rankingData.forEach((item, index) => {
-                const row = document.createElement('tr');
-                
-                // Definir medalhas para os 3 primeiros
-                let medalha = '';
-                if (index === 0) medalha = '<span class="medalha ouro">1</span>';
-                else if (index === 1) medalha = '<span class="medalha prata">2</span>';
-                else if (index === 2) medalha = '<span class="medalha bronze">3</span>';
-                else medalha = (index + 1);
-                
-                row.innerHTML = `
-                    <td class="posicao">${medalha}</td>
-                    <td>${item.nome}</td>
-                    <td>${item.pontuacao}</td>
-                    <td>${item.quiz}</td>
-                `;
-                
-                rankingBody.appendChild(row);
-            });
-            
-            // Se não houver dados, mostrar mensagem
-            if (rankingData.length === 0) {
-                rankingBody.innerHTML = `
-                    <tr>
-                        <td colspan="4" style="text-align: center; padding: 2rem;">
-                            Nenhuma pontuação registrada ainda. Seja o primeiro a jogar!
-                        </td>
-                    </tr>
-                `;
-            }
+        // Carregar ranking DO BANCO DE DADOS
+// Carregar ranking APENAS DO BANCO DE DADOS
+async function loadRanking() {
+    const rankingBody = document.getElementById('rankingBody');
+    const BACKEND_URL = 'https://backend-quiz-tgd1.onrender.com';
+    
+    // Mostrar loading
+    rankingBody.innerHTML = `
+        <tr>
+            <td colspan="4" style="text-align: center; padding: 2rem;">
+                <div class="loading">Carregando ranking...</div>
+            </td>
+        </tr>
+    `;
+    
+    try {
+        console.log('🏆 Buscando ranking REAL do backend...');
+        
+        // Buscar o ID do quiz "América do Sul"
+        const quizzesResponse = await fetch(`${BACKEND_URL}/api/quizzes`);
+        
+        if (!quizzesResponse.ok) {
+            throw new Error('Erro ao buscar quizzes');
         }
+        
+        const quizzes = await quizzesResponse.json();
+        const quizSul = quizzes.find(q => 
+            q.titulo?.toLowerCase().includes('américa') || 
+            q.titulo?.toLowerCase().includes('sul')
+        );
+        
+        if (!quizSul) {
+            throw new Error('Quiz América do Sul não encontrado');
+        }
+        
+        console.log('🎯 Quiz encontrado:', quizSul.id);
+        
+        // Buscar ranking REAL do backend
+        const rankingResponse = await fetch(`${BACKEND_URL}/api/ranking/${quizSul.id}`);
+        
+        if (!rankingResponse.ok) {
+            throw new Error('Erro ao buscar ranking');
+        }
+        
+        const rankingBackend = await rankingResponse.json();
+        console.log('📊 Ranking REAL do backend:', rankingBackend);
+        
+        // Limpar tabela
+        rankingBody.innerHTML = '';
+        
+        if (!rankingBackend || rankingBackend.length === 0) {
+            rankingBody.innerHTML = `
+                <tr>
+                    <td colspan="4" style="text-align: center; padding: 2rem;">
+                        🎯 Nenhuma pontuação ainda! Seja o primeiro a jogar!
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+        
+        // Adicionar dados REAIS do banco ao ranking
+        rankingBackend.forEach((item, index) => {
+            const row = document.createElement('tr');
+            
+            // Definir medalhas para os 3 primeiros
+            let medalha = '';
+            if (index === 0) medalha = '<span class="medalha ouro">1</span>';
+            else if (index === 1) medalha = '<span class="medalha prata">2</span>';
+            else if (index === 2) medalha = '<span class="medalha bronze">3</span>';
+            else medalha = (index + 1);
+            
+            row.innerHTML = `
+                <td class="posicao">${medalha}</td>
+                <td>${item.usuarios?.nome || 'Jogador'}</td>
+                <td><strong>${item.pontuacao || 0} Pontos</strong> </td>
+                <td>América do Sul</td>
+            `;
+            
+            rankingBody.appendChild(row);
+        });
+        
+    } catch (error) {
+        console.error('❌ Erro ao carregar ranking:', error);
+        
+        // MOSTRAR ERRO CLARO - sem fallback local!
+        rankingBody.innerHTML = `
+            <tr>
+                <td colspan="4" style="text-align: center; padding: 2rem; color: #f44336;">
+                    ❌ Erro ao carregar ranking<br>
+                    <small>Backend offline - Tente novamente mais tarde</small>
+                </td>
+            </tr>
+        `;
+    }
+}
+// Função fallback para carregar ranking local
+function loadRankingLocal() {
+    const rankingBody = document.getElementById('rankingBody');
+    
+    // Obter dados do ranking do localStorage
+    let rankingData = JSON.parse(localStorage.getItem('quizRanking')) || [];
+    
+    // Ordenar por pontuação (maior para menor)
+    rankingData.sort((a, b) => b.pontuacao - a.pontuacao);
+    
+    // Limpar tabela
+    rankingBody.innerHTML = '';
+    
+    // Adicionar dados ao ranking
+    rankingData.forEach((item, index) => {
+        const row = document.createElement('tr');
+        
+        // Definir medalhas para os 3 primeiros
+        let medalha = '';
+        if (index === 0) medalha = '<span class="medalha ouro">1</span>';
+        else if (index === 1) medalha = '<span class="medalha prata">2</span>';
+        else if (index === 2) medalha = '<span class="medalha bronze">3</span>';
+        else medalha = (index + 1);
+        
+        row.innerHTML = `
+            <td class="posicao">${medalha}</td>
+            <td>${item.nome}</td>
+            <td>${item.pontuacao}</td>
+            <td>${item.quiz}</td>
+        `;
+        
+        rankingBody.appendChild(row);
+    });
+    
+    // Se não houver dados, mostrar mensagem
+    if (rankingData.length === 0) {
+        rankingBody.innerHTML = `
+            <tr>
+                <td colspan="4" style="text-align: center; padding: 2rem;">
+                    Nenhuma pontuação registrada ainda. Seja o primeiro a jogar!
+                </td>
+            </tr>
+        `;
+    }
+}
         
         // Menu mobile toggle
         document.getElementById('menuToggle').addEventListener('click', function() {
