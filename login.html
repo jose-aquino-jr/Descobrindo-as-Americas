@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Descobrindo as Américas</title>
+    <meta name="description" content="Faça login para acessar os quizzes sobre as Américas">
+    <style>
+        :root {
+            --azul-escuro: #0a2463;
+            --azul-medio: #1565c0;
+            --azul-claro: #2196f3;
+            --azul-bem-claro: #e3f2fd;
+            --branco: #ffffff;
+            --preto: #212121;
+            --cinza: #757575;
+            --cinza-claro: #f5f5f5;
+            --verde: #4CAF50;
+            --laranja: #FF9800;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--azul-escuro) 0%, var(--azul-medio) 100%);
+            color: var(--preto);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            background-color: var(--branco);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 450px;
+            padding: 3rem;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--azul-escuro);
+        }
+
+        .logo span {
+            color: var(--azul-medio);
+        }
+
+        h1 {
+            color: var(--azul-escuro);
+            margin-bottom: 0.5rem;
+            font-size: 1.8rem;
+        }
+
+        .subtitle {
+            color: var(--cinza);
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--azul-escuro);
+            font-weight: 500;
+        }
+
+        input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid var(--cinza-claro);
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--azul-claro);
+            box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: var(--laranja);
+            color: var(--branco);
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);
+            font-size: 1.1rem;
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        .btn:hover {
+            background-color: #F57C00;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(255, 152, 0, 0.4);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            border: 2px solid var(--azul-claro);
+            color: var(--azul-claro);
+            margin-top: 1rem;
+            box-shadow: none;
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--azul-claro);
+            color: var(--branco);
+        }
+
+        .error-message {
+            color: #f44336;
+            margin-top: 1rem;
+            display: none;
+            background-color: #ffebee;
+            padding: 0.8rem;
+            border-radius: 8px;
+            border-left: 4px solid #f44336;
+        }
+
+        .footer-links {
+            margin-top: 2rem;
+            text-align: center;
+        }
+
+        .footer-links a {
+            color: var(--azul-claro);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: var(--azul-escuro);
+        }
+
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 2rem;
+            }
+            
+            .logo {
+                font-size: 1.8rem;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">Descobrindo as&nbsp;<span>Américas</span></div>
+        <h1>Faça seu login</h1>
+        <p class="subtitle">Informe seu RM e nome para acessar os quizzes</p>
+        
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="rm">RM (Registro do Aluno)</label>
+                <input type="text" id="rm" name="rm" placeholder="Digite seu RM" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="nome">Nome Completo</label>
+                <input type="text" id="nome" name="nome" placeholder="Digite seu nome completo" required>
+            </div>
+            
+            <button type="submit" class="btn">Entrar</button>
+            
+            <div class="error-message" id="errorMessage">
+                RM ou nome inválido. Tente novamente.
+            </div>
+        </form>
+        
+        <div class="footer-links">
+            <a href="index.html">← Voltar para a página inicial</a>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const rm = document.getElementById('rm').value.trim();
+            const nome = document.getElementById('nome').value.trim();
+            const errorMessage = document.getElementById('errorMessage');
+            
+            // Validação simples
+            if (rm === '' || nome === '') {
+                errorMessage.style.display = 'block';
+                return;
+            }
+            
+            // Salvar dados do usuário no localStorage
+            const userData = {
+                rm: rm,
+                nome: nome,
+                loggedIn: true,
+                timestamp: new Date().getTime()
+            };
+            
+            localStorage.setItem('quizUser', JSON.stringify(userData));
+            
+            // Redirecionar para a página inicial
+            window.location.href = 'index.html';
+        });
+        
+        // Verificar se já está logado e redirecionar
+        window.addEventListener('DOMContentLoaded', function() {
+            const userData = localStorage.getItem('quizUser');
+            if (userData) {
+                const user = JSON.parse(userData);
+                // Verificar se o login ainda é válido (24 horas)
+                const now = new Date().getTime();
+                if (user.loggedIn && (now - user.timestamp) < 24 * 60 * 60 * 1000) {
+                    window.location.href = 'index.html';
+                }
+            }
+        });
+    </script>
+</body>
+</html>

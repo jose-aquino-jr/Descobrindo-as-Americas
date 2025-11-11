@@ -1,533 +1,893 @@
-<DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Descobrindo as Américas - Teste seus conhecimentos sobre as américas</title>
-<meta name="description" content="Desafie seus conhecimentos sobre os países da América em nosso quiz educativo. Perfect para estudantes e amantes de geografia.">
-<style>
-:root {
---azul-escuro: #0a2463;
---azul-medio: #1565c0;
---azul-claro: #2196f3;
---azul-bem-claro: #e3f2fd;
---branco: #ffffff;
---preto: #212121;
---cinza: #757575;
---cinza-claro: #f5f5f5;
-}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Descobrindo as Américas - Teste seus conhecimentos sobre as américas</title>
+    <meta name="description" content="Desafie seus conhecimentos sobre os países da América em nosso quiz educativo. Perfeito para estudantes e amantes de geografia.">
+    <meta name="keywords" content="quiz, américa, geografia, educação, aprendizado, países, continente americano">
+    <style>
+        :root {
+            --azul-escuro: #0a2463;
+            --azul-medio: #1565c0;
+            --azul-claro: #2196f3;
+            --azul-bem-claro: #e3f2fd;
+            --branco: #ffffff;
+            --preto: #212121;
+            --cinza: #757575;
+            --cinza-claro: #f5f5f5;
+            --verde: #4CAF50;
+            --laranja: #FF9800;
+        }
 
-* {
-margin: 0;
-padding: 0;
-box-sizing: border-box;
-font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
 
-body {
-background-color: var(--branco);
-color: var(--preto);
-line-height: 1.6;
-}
+        body {
+            background-color: var(--branco);
+            color: var(--preto);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
 
-.container {
-width: 90%;
-max-width: 1200px;
-margin: 0 auto;
-padding: 0 15px;
-}
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
 
-/* Header */
-header {
-background: linear-gradient(135deg, var(--azul-escuro) 0%, var(--azul-medio) 100%);
-color: var(--branco);
-padding: 1rem 0;
-position: sticky;
-top: 0;
-z-index: 100;
-box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--azul-escuro) 0%, var(--azul-medio) 100%);
+            color: var(--branco);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
 
-nav {
-display: flex;
-justify-content: space-between;
-align-items: center;
-}
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
 
-.logo {
-font-size: 1.8rem;
-font-weight: 700;
-display: flex;
-align-items: center;
-}
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+        }
 
-.logo span {
-color: var(--azul-bem-claro);
-}
+        .logo span {
+            color: var(--azul-bem-claro);
+        }
 
-.nav-links {
-display: flex;
-list-style: none;
-}
+        .nav-links {
+            display: flex;
+            list-style: none;
+            align-items: center;
+        }
 
-.nav-links li {
-margin-left: 1.5rem;
-}
+        .nav-links li {
+            margin-left: 1.5rem;
+        }
 
-.nav-links a {
-color: var(--branco);
-text-decoration: none;
-font-weight: 500;
-transition: color 0.3s;
-}
+        .nav-links a {
+            color: var(--branco);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+            position: relative;
+        }
 
-.nav-links a:hover {
-color: var(--azul-bem-claro);
-}
+        .nav-links a:hover {
+            color: var(--azul-bem-claro);
+        }
 
-/* Hero Section */
-.hero {
-background: linear-gradient(rgba(10, 36, 99, 0.8), rgba(10, 36, 99, 0.8)), url('https://placehold.co/1200x600/0a2463/ffffff?text=América+Quiz');
-background-size: cover;
-background-position: center;
-color: var(--branco);
-padding: 5rem 0;
-text-align: center;
-}
+        .nav-links a:after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            left: 0;
+            background-color: var(--azul-bem-claro);
+            transition: width 0.3s;
+        }
 
-.hero h1 {
-font-size: 2.8rem;
-margin-bottom: 1rem;
-}
+        .nav-links a:hover:after {
+            width: 100%;
+        }
 
-.hero p {
-font-size: 1.2rem;
-max-width: 700px;
-margin: 0 auto 2rem;
-}
+        .user-info {
+            display: flex;
+            align-items: center;
+            margin-left: 1.5rem;
+            color: var(--azul-bem-claro);
+            font-weight: 500;
+        }
+        
+        .logout-btn {
+            background: none;
+            border: none;
+            color: var(--azul-bem-claro);
+            cursor: pointer;
+            margin-left: 0.5rem;
+            font-size: 0.9rem;
+            text-decoration: underline;
+        }
+        
+        .logout-btn:hover {
+            color: var(--branco);
+        }
 
-.btn {
-display: inline-block;
-background-color: var(--azul-claro);
-color: var(--branco);
-padding: 0.8rem 1.5rem;
-border-radius: 50px;
-text-decoration: none;
-font-weight: 600;
-transition: all 0.3s;
-border: none;
-cursor: pointer;
-}
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+        }
 
-.btn:hover {
-background-color: var(--azul-medio);
-transform: translateY(-3px);
-box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-}
+        .menu-toggle span {
+            height: 3px;
+            width: 25px;
+            background: var(--branco);
+            margin-bottom: 4px;
+            border-radius: 2px;
+            transition: all 0.3s;
+        }
 
-/* Sections comuns */
-section {
-padding: 5rem 0;
-}
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(rgba(10, 36, 99, 0.85), rgba(10, 36, 99, 0.85)), url('https://images.unsplash.com/photo-1483729558449-99ef09a8c325?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80');
+            background-size: cover;
+            background-position: center;
+            color: var(--branco);
+            padding: 6rem 0;
+            text-align: center;
+            position: relative;
+        }
 
-section h2 {
-text-align: center;
-margin-bottom: 3rem;
-color: var(--azul-escuro);
-position: relative;
-}
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+        }
 
-section h2:after {
-content: '';
-display: block;
-width: 80px;
-height: 4px;
-background: var(--azul-claro);
-margin: 10px auto;
-border-radius: 2px;
-}
+        .hero p {
+            font-size: 1.3rem;
+            max-width: 700px;
+            margin: 0 auto 2.5rem;
+        }
 
-/* Sobre */
-.sobre {
-background-color: var(--branco);
-}
+        .btn {
+            display: inline-block;
+            background-color: var(--laranja);
+            color: var(--branco);
+            padding: 0.9rem 2rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);
+            font-size: 1.1rem;
+        }
 
-.sobre-content {
-display: flex;
-flex-wrap: wrap;
-align-items: center;
-gap: 2rem;
-}
+        .btn:hover {
+            background-color: #F57C00;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(255, 152, 0, 0.4);
+        }
 
-.sobre-texto {
-flex: 1;
-min-width: 300px;
-}
+        .btn-secondary {
+            background-color: transparent;
+            border: 2px solid var(--branco);
+            margin-left: 1rem;
+        }
 
-.sobre-imagem {
-flex: 1;
-min-width: 300px;
-border-radius: 10px;
-overflow: hidden;
-box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-}
+        .btn-secondary:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
 
-.sobre-imagem img {
-width: 100%;
-height: auto;
-display: block;
-}
+        /* Sections comuns */
+        section {
+            padding: 5rem 0;
+        }
 
-/* Quiz */
-.quiz {
-background-color: var(--azul-bem-claro);
-}
+        section h2 {
+            text-align: center;
+            margin-bottom: 3rem;
+            color: var(--azul-escuro);
+            position: relative;
+            font-size: 2.2rem;
+        }
 
-.quiz-grid {
-display: grid;
-grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-gap: 2rem;
-}
+        section h2:after {
+            content: '';
+            display: block;
+            width: 80px;
+            height: 4px;
+            background: var(--azul-claro);
+            margin: 15px auto;
+            border-radius: 2px;
+        }
 
-.quiz-card {
-background: var(--branco);
-border-radius: 10px;
-overflow: hidden;
-box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-transition: transform 0.3s;
-}
+        /* Sobre */
+        .sobre {
+            background-color: var(--branco);
+        }
 
-.quiz-card:hover {
-transform: translateY(-5px);
-}
+        .sobre-content {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 3rem;
+        }
 
-.quiz-card img {
-width: 100%;
-height: 200px;
-object-fit: cover;
-}
+        .sobre-texto {
+            flex: 1;
+            min-width: 300px;
+        }
 
-.quiz-card-content {
-padding: 1.5rem;
-}
+        .sobre-texto p {
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+        }
 
-.quiz-card h3 {
-color: var(--azul-escuro);
-margin-bottom: 0.5rem;
-}
+        .sobre-imagem {
+            flex: 1;
+            min-width: 300px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
 
-/* Ranking */
-.ranking {
-background-color: var(--branco);
-}
+        .sobre-imagem:hover {
+            transform: scale(1.02);
+        }
 
-.ranking-table {
-width: 100%;
-border-collapse: collapse;
-margin-top: 2rem;
-box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-border-radius: 10px;
-overflow: hidden;
-}
+        .sobre-imagem img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
 
-.ranking-table th, 
-.ranking-table td {
-padding: 1rem;
-text-align: left;
-border-bottom: 1px solid var(--cinza-claro);
-}
+        /* Quiz */
+        .quiz {
+            background-color: var(--azul-bem-claro);
+        }
 
-.ranking-table th {
-background-color: var(--azul-escuro);
-color: var(--branco);
-font-weight: 600;
-}
+        .quiz-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2.5rem;
+        }
 
-.ranking-table tr:nth-child(even) {
-background-color: var(--azul-bem-claro);
-}
+        .quiz-card {
+            background: var(--branco);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+        }
 
-.ranking-table tr:hover {
-background-color: var(--azul-claro);
-color: var(--branco);
-}
+        .quiz-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
 
-.posicao {
-font-weight: bold;
-text-align: center;
-width: 60px;
-}
+        .quiz-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            transition: transform 0.5s;
+        }
 
-/* Foto da Turma */
-.foto-turma {
-background: linear-gradient(135deg, var(--azul-escuro) 0%, var(--azul-medio) 100%);
-color: var(--branco);
-text-align: center;
-}
+        .quiz-card:hover img {
+            transform: scale(1.05);
+        }
 
-.foto-container {
-max-width: 900px;
-margin: 0 auto;
-border-radius: 10px;
-overflow: hidden;
-box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-}
+        .quiz-card-content {
+            padding: 1.8rem;
+        }
 
-.foto-container img {
-width: 100%;
-height: auto;
-display: block;
-}
+        .quiz-card h3 {
+            color: var(--azul-escuro);
+            margin-bottom: 0.8rem;
+            font-size: 1.4rem;
+        }
 
-.legenda-foto {
-margin-top: 1.5rem;
-font-style: italic;
-}
+        .quiz-card p {
+            margin-bottom: 1.5rem;
+            color: var(--cinza);
+        }
 
-/* Footer */
-footer {
-background-color: var(--azul-escuro);
-color: var(--branco);
-padding: 3rem 0 1.5rem;
-}
+        .quiz-card .btn {
+            width: 100%;
+            text-align: center;
+        }
 
-.footer-content {
-display: flex;
-flex-wrap: wrap;
-justify-content: space-between;
-gap: 2rem;
-margin-bottom: 2rem;
-}
+        .quiz-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: var(--verde);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
 
-.footer-section {
-flex: 1;
-min-width: 250px;
-}
+        /* Ranking */
+        .ranking {
+            background-color: var(--branco);
+        }
 
-.footer-section h3 {
-margin-bottom: 1.2rem;
-position: relative;
-padding-bottom: 0.5rem;
-}
+        .ranking-table-container {
+            overflow-x: auto;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
 
-.footer-section h3:after {
-content: '';
-position: absolute;
-bottom: 0;
-left: 0;
-width: 50px;
-height: 2px;
-background-color: var(--azul-claro);
-}
+        .ranking-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 2rem;
+        }
 
-.footer-links {
-list-style: none;
-}
+        .ranking-table th, 
+        .ranking-table td {
+            padding: 1.2rem;
+            text-align: left;
+            border-bottom: 1px solid var(--cinza-claro);
+        }
 
-.footer-links li {
-margin-bottom: 0.8rem;
-}
+        .ranking-table th {
+            background-color: var(--azul-escuro);
+            color: var(--branco);
+            font-weight: 600;
+        }
 
-.footer-links a {
-color: var(--azul-bem-claro);
-text-decoration: none;
-transition: color 0.3s;
-}
+        .ranking-table tr:nth-child(even) {
+            background-color: var(--azul-bem-claro);
+        }
 
-.footer-links a:hover {
-color: var(--branco);
-}
+        .ranking-table tr:hover {
+            background-color: var(--azul-claro);
+            color: var(--branco);
+        }
 
-.copyright {
-text-align: center;
-padding-top: 1.5rem;
-border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
+        .posicao {
+            font-weight: bold;
+            text-align: center;
+            width: 60px;
+        }
 
-/* Responsividade */
-@media (max-width: 768px) {
-.nav-links {
-display: none;
-}
+        .medalha {
+            display: inline-block;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 25px;
+            margin-right: 8px;
+        }
 
-.hero h1 {
-font-size: 2.2rem;
-}
+        .ouro {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #000;
+        }
 
-.hero p {
-font-size: 1rem;
-}
+        .prata {
+            background: linear-gradient(135deg, #C0C0C0, #A0A0A0);
+            color: #000;
+        }
 
-section {
-padding: 3rem 0;
-}
-}
-</style>
+        .bronze {
+            background: linear-gradient(135deg, #CD7F32, #A56C27);
+            color: #000;
+        }
+
+        /* Foto da Turma */
+        .foto-turma {
+            background: linear-gradient(135deg, var(--azul-escuro) 0%, var(--azul-medio) 100%);
+            color: var(--branco);
+            text-align: center;
+        }
+
+        .foto-container {
+            max-width: 900px;
+            margin: 0 auto;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+            transition: transform 0.3s;
+        }
+
+        .foto-container:hover {
+            transform: scale(1.02);
+        }
+
+        .foto-container img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .legenda-foto {
+            margin-top: 1.8rem;
+            font-style: italic;
+            font-size: 1.1rem;
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--azul-escuro);
+            color: var(--branco);
+            padding: 4rem 0 1.5rem;
+        }
+
+        .footer-content {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 2.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .footer-section {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .footer-section h3 {
+            margin-bottom: 1.5rem;
+            position: relative;
+            padding-bottom: 0.8rem;
+        }
+
+        .footer-section h3:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 50px;
+            height: 2px;
+            background-color: var(--azul-claro);
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 0.8rem;
+        }
+
+        .footer-links a {
+            color: var(--azul-bem-claro);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: var(--branco);
+            padding-left: 5px;
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 1.8rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Animações */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.8s ease forwards;
+        }
+
+        .delay-1 { animation-delay: 0.2s; }
+        .delay-2 { animation-delay: 0.4s; }
+        .delay-3 { animation-delay: 0.6s; }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                background: var(--azul-escuro);
+                flex-direction: column;
+                padding: 1rem 0;
+                box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+            }
+
+            .nav-links.active {
+                display: flex;
+            }
+
+            .nav-links li {
+                margin: 0;
+                text-align: center;
+                padding: 0.8rem 0;
+            }
+
+            .menu-toggle {
+                display: flex;
+            }
+
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+
+            .hero p {
+                font-size: 1.1rem;
+            }
+
+            section {
+                padding: 3.5rem 0;
+            }
+
+            .hero {
+                padding: 4rem 0;
+            }
+
+            .btn-container {
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .btn-secondary {
+                margin-left: 0;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 1.8rem;
+            }
+
+            section h2 {
+                font-size: 1.8rem;
+            }
+
+            .quiz-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
-<!-- Header -->
-<header>
-<div class="container">
-<nav>
-       <div class="logo">Descobrindo as&nbsp;<span>Américas</span></div>
-<ul class="nav-links">
-<li><a href="#sobre">Sobre</a></li>
-<li><a href="#quiz">Quizzes</a></li>
-<li><a href="#ranking">Ranking</a></li>
-<li><a href="#turma">Nossa Turma</a></li>
-</ul>
-</nav>
-</div>
-</header>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">Descobrindo as&nbsp;<span>Américas</span></div>
+                <ul class="nav-links">
+                    <li><a href="#sobre">Sobre</a></li>
+                    <li><a href="#quiz">Quizzes</a></li>
+                    <li><a href="#ranking">Ranking</a></li>
+                    <li><a href="#turma">Nossa Turma</a></li>
+                    <li id="userInfoItem" style="display: none;">
+                        <div class="user-info">
+                            <span id="userName"></span>
+                            <button class="logout-btn" id="logoutBtn">Sair</button>
+                        </div>
+                    </li>
+                    <li id="loginItem">
+                        <a href="login.html" class="btn" style="padding: 0.5rem 1rem; font-size: 0.9rem;">Login</a>
+                    </li>
+                </ul>
+                <div class="menu-toggle" id="menuToggle">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </nav>
+        </div>
+    </header>
 
-<!-- Hero Section -->
-<section class="hero">
-<div class="container">
-<h1>Teste seus conhecimentos sobre a América</h1>
-<p>Desafie-se com nossos quizzes sobre países, culturas e curiosidades das Américas do Norte, Central e Sul.</p>
-            <a href="quiz-americasul.html" class="btn">Começar Quiz</a>
-</div>
-</section>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1 class="fade-in">Teste seus conhecimentos sobre a América</h1>
+            <p class="fade-in delay-1">Desafie-se com nossos quizzes sobre países, culturas e curiosidades das Américas do Norte, Central e Sul.</p>
+            <div class="btn-container fade-in delay-2">
+                <a href="#" class="btn" id="startQuizBtn">Começar Quiz</a>
+                <a href="#sobre" class="btn btn-secondary">Saiba Mais</a>
+            </div>
+        </div>
+    </section>
 
-<!-- Sobre -->
-<section id="sobre" class="sobre">
-<div class="container">
-<h2>Sobre o Projeto</h2>
-<div class="sobre-content">
-<div class="sobre-texto">
-<p>O América Quiz é um projeto educacional desenvolvido por estudantes para testar e expandir conhecimentos sobre os países que formam o continente americano.</p>
-<p>Nosso objetivo é proporcionar uma experiência de aprendizado interativa e divertida, com quizzes sobre geografia, cultura, história e curiosidades de cada nação.</p>
-<p>O projeto foi idealizado como parte das atividades escolares da turma do 9º ano, integrando tecnologia e educação de forma inovadora.</p>
-</div>
-<div class="sobre-imagem">
-<img src="mapa-das-americas.jpg" height="500" weigth="300" alt="Mapa das Américas">
-</div>
-</div>
-</div>
-</section>
+    <!-- Sobre -->
+    <section id="sobre" class="sobre">
+        <div class="container">
+            <h2>Sobre o Projeto</h2>
+            <div class="sobre-content">
+                <div class="sobre-texto fade-in">
+                    <p>O <strong>Descobrindo as Américas</strong> é um projeto educacional desenvolvido por estudantes para testar e expandir conhecimentos sobre os países que formam o continente americano.</p>
+                    <p>Nosso objetivo é proporcionar uma experiência de aprendizado interativa e divertida, com quizzes sobre geografia, cultura, história e curiosidades de cada nação.</p>
+                    <p>O projeto foi idealizado como parte das atividades escolares da turma do 1º ano de DS, integrando tecnologia e educação de forma inovadora.</p>
+                </div>
+                <div class="sobre-imagem fade-in delay-1">
+                    <img src="https://img.freepik.com/fotos-premium/mapa-do-mundo-incrivelmente-detalhado-e-realista-com-uma-bela-mistura-de-cores-e-texturas-perfeito-para-qualquer-projeto-que-exija-um-mapa-de-alta-qualidade_14117-414328.jpg" alt="Mapa das Américas">
+                </div>
+            </div>
+        </div>
+    </section>
 
-<!-- Quiz -->
-<section id="quiz" class="quiz">
-<div class="container">
-<h2>Nossos Quizzes</h2>
-<div class="quiz-grid">
-<div class="quiz-card">
-                    <img src="america-sul.jpg" height="200" weigth="400" alt="América do Sul">
-<div class="quiz-card-content">
-<h3>América do Sul</h3>
-<p>Teste seus conhecimentos sobre os países, capitais e curiosidades da América do Sul.</p>
-<a href="americasul.html" class="btn">Iniciar Quiz</a>
-</div>
-</div>
+    <!-- Quiz -->
+    <section id="quiz" class="quiz">
+        <div class="container">
+            <h2>Nossos Quizzes</h2>
+            <div class="quiz-grid">
+                <div class="quiz-card fade-in">
+                    <div class="quiz-badge">Mais Popular</div>
+                    <img src="https://images.unsplash.com/photo-1619546952812-520e98064a52?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="América do Sul">
+                    <div class="quiz-card-content">
+                        <h3>América do Sul</h3>
+                        <p>Teste seus conhecimentos sobre os países, capitais e curiosidades da América do Sul.</p>
+                        <a href="#" class="btn quiz-link" data-quiz="americasul">Iniciar Quiz</a>
+                    </div>
+                </div>
 
-<div class="quiz-card">
-<img src="america-central.jpg" height="200" weigth="400" alt="América Central">
-<div class="quiz-card-content">
-<h3>América Central</h3>
-<p>Desafie-se com perguntas sobre as nações da América Central e suas belezas naturais.</p>
-<a href="#" class="btn">Iniciar Quiz</a>
-</div>
-</div>
+                <div class="quiz-card fade-in delay-1">
+                    <img src="https://images.unsplash.com/photo-1502920917128-1aa500764cbd?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="América Central">
+                    <div class="quiz-card-content">
+                        <h3>América Central</h3>
+                        <p>Desafie-se com perguntas sobre as nações da América Central e suas belezas naturais.</p>
+                        <a href="#" class="btn">Em Breve</a>
+                    </div>
+                </div>
 
-<div class="quiz-card">
-<img src="america-norte.jpg" height="200" weigth="400" alt="América do Norte">
-<div class="quiz-card-content">
-<h3>América do Norte</h3>
-<p>Quanto você sabe sobre Canadá, Estados Unidos e México? Descubra agora!</p>
-<a href="#" class="btn">Iniciar Quiz</a>
-</div>
-</div>
-</div>
-</div>
-</section>
+                <div class="quiz-card fade-in delay-2">
+                    <img src="https://images.unsplash.com/photo-1485738422979-f5c462d49f74?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="América do Norte">
+                    <div class="quiz-card-content">
+                        <h3>América do Norte</h3>
+                        <p>Quanto você sabe sobre Canadá, Estados Unidos e México? Descubra agora!</p>
+                        <a href="#" class="btn">Em Breve</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-<!-- Ranking -->
-<section id="ranking" class="ranking">
-<div class="container">
-<h2>Ranking de Pontuações</h2>
-<table class="ranking-table">
-<thead>
-<tr>
-<th class="posicao">#</th>
-<th>Jogador</th>
-<th>Pontuação</th>
-<th>Quiz</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="posicao">1</td>
-<td>Maria Silva</td>
-<td>950</td>
-<td>América do Sul</td>
-</tr>
-<tr>
-<td class="posicao">2</td>
-<td>João Santos</td>
-<td>920</td>
-<td>América do Norte</td>
-</tr>
-<tr>
-<td class="posicao">3</td>
-<td>Ana Oliveira</td>
-<td>890</td>
-<td>América Central</td>
-</tr>
-<tr>
-<td class="posicao">4</td>
-<td>Pedro Costa</td>
-<td>870</td>
-<td>América do Sul</td>
-</tr>
-<tr>
-<td class="posicao">5</td>
-<td>Carla Rodrigues</td>
-<td>840</td>
-<td>América do Norte</td>
-</tr>
-</tbody>
-</table>
-</div>
-</section>
+    <!-- Ranking -->
+    <section id="ranking" class="ranking">
+        <div class="container">
+            <h2>Ranking de Pontuações</h2>
+            <div class="ranking-table-container">
+                <table class="ranking-table" id="rankingTable">
+                    <thead>
+                        <tr>
+                            <th class="posicao">#</th>
+                            <th>Jogador</th>
+                            <th>Pontuação</th>
+                            <th>Quiz</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rankingBody">
+                        <!-- Ranking será carregado dinamicamente -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
 
-<!-- Foto da Turma -->
-<section id="turma" class="foto-turma">
-<div class="container">
-<h2>Nossa Turma</h2>
-<div class="foto-container">
-<img src="sala.jpg" width="300px" heigth="500px">
-</div>
-<p class="legenda-foto">Turma 1º Ano DS - Desenvolvendo conhecimentos sobre as Américas através da tecnologia</p>
-</div>
-</section>
+    <!-- Foto da Turma -->
+    <section id="turma" class="foto-turma">
+        <div class="container">
+            <h2>Nossa Turma</h2>
+            <div class="foto-container fade-in">
+                <img src="sala.jpg" alt="Nossa Turma">
+            </div>
+            <p class="legenda-foto fade-in delay-1">Turma 1º Ano DS - Desenvolvendo conhecimentos sobre as Américas através da tecnologia</p>
+        </div>
+    </section>
 
-<!-- Footer -->
-<footer>
-<div class="container">
-<div class="footer-content">
-<div class="footer-section">
-<h3>Descobrindo as Américas</h3>
-<p>Um projeto educacional para testar e expandir conhecimentos sobre o continente americano.</p>
-</div>
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Descobrindo as Américas</h3>
+                    <p>Um projeto educacional para testar e expandir conhecimentos sobre o continente americano.</p>
+                </div>
 
-<div class="footer-section">
-<h3>Links Rápidos</h3>
-<ul class="footer-links">
-<li><a href="#sobre">Sobre</a></li>
-<li><a href="#quiz">Quizzes</a></li>
-<li><a href="#ranking">Ranking</a></li>
-<li><a href="#turma">Nossa Turma</a></li>
-</ul>
-</div>
-</div>
+                <div class="footer-section">
+                    <h3>Links Rápidos</h3>
+                    <ul class="footer-links">
+                        <li><a href="#sobre">Sobre</a></li>
+                        <li><a href="#quiz">Quizzes</a></li>
+                        <li><a href="#ranking">Ranking</a></li>
+                        <li><a href="#turma">Nossa Turma</a></li>
+                    </ul>
+                </div>
+            </div>
 
-<div class="copyright">
-<p>&copy; 2025 Descobrindo as Américas - Todos os direitos reservados</p>
-</div>
-</div>
-</footer>
+            <div class="copyright">
+                <p>&copy; 2025 Descobrindo as Américas - Todos os direitos reservados</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Verificar se o usuário está logado
+        function checkLogin() {
+            const userData = localStorage.getItem('quizUser');
+            const userInfoItem = document.getElementById('userInfoItem');
+            const loginItem = document.getElementById('loginItem');
+            const userName = document.getElementById('userName');
+            const startQuizBtn = document.getElementById('startQuizBtn');
+            const quizLinks = document.querySelectorAll('.quiz-link');
+            
+            if (userData) {
+                const user = JSON.parse(userData);
+                const now = new Date().getTime();
+                
+                // Verificar se o login ainda é válido (24 horas)
+                if (user.loggedIn && (now - user.timestamp) < 24 * 60 * 60 * 1000) {
+                    // Usuário logado
+                    userInfoItem.style.display = 'block';
+                    loginItem.style.display = 'none';
+                    userName.textContent = user.nome;
+                    startQuizBtn.href = 'quiz-americasul.html';
+                    
+                    // Atualizar links dos quizzes
+                    quizLinks.forEach(link => {
+                        link.href = `${link.dataset.quiz}.html`;
+                    });
+                } else {
+                    // Login expirado
+                    localStorage.removeItem('quizUser');
+                    userInfoItem.style.display = 'none';
+                    loginItem.style.display = 'block';
+                    startQuizBtn.href = 'login.html';
+                    
+                    // Atualizar links dos quizzes para login
+                    quizLinks.forEach(link => {
+                        link.href = 'login.html';
+                    });
+                }
+            } else {
+                // Não logado
+                userInfoItem.style.display = 'none';
+                loginItem.style.display = 'block';
+                startQuizBtn.href = 'login.html';
+                
+                // Atualizar links dos quizzes para login
+                quizLinks.forEach(link => {
+                    link.href = 'login.html';
+                });
+            }
+            
+            // Carregar ranking
+            loadRanking();
+        }
+        
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', function() {
+            localStorage.removeItem('quizUser');
+            checkLogin();
+        });
+        
+        // Carregar ranking
+        function loadRanking() {
+            const rankingBody = document.getElementById('rankingBody');
+            
+            // Obter dados do ranking do localStorage
+            let rankingData = JSON.parse(localStorage.getItem('quizRanking')) || [];
+            
+            // Ordenar por pontuação (maior para menor)
+            rankingData.sort((a, b) => b.pontuacao - a.pontuacao);
+            
+            // Limpar tabela
+            rankingBody.innerHTML = '';
+            
+            // Adicionar dados ao ranking
+            rankingData.forEach((item, index) => {
+                const row = document.createElement('tr');
+                
+                // Definir medalhas para os 3 primeiros
+                let medalha = '';
+                if (index === 0) medalha = '<span class="medalha ouro">1</span>';
+                else if (index === 1) medalha = '<span class="medalha prata">2</span>';
+                else if (index === 2) medalha = '<span class="medalha bronze">3</span>';
+                else medalha = (index + 1);
+                
+                row.innerHTML = `
+                    <td class="posicao">${medalha}</td>
+                    <td>${item.nome}</td>
+                    <td>${item.pontuacao}</td>
+                    <td>${item.quiz}</td>
+                `;
+                
+                rankingBody.appendChild(row);
+            });
+            
+            // Se não houver dados, mostrar mensagem
+            if (rankingData.length === 0) {
+                rankingBody.innerHTML = `
+                    <tr>
+                        <td colspan="4" style="text-align: center; padding: 2rem;">
+                            Nenhuma pontuação registrada ainda. Seja o primeiro a jogar!
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+        
+        // Menu mobile toggle
+        document.getElementById('menuToggle').addEventListener('click', function() {
+            document.querySelector('.nav-links').classList.toggle('active');
+        });
+
+        // Fechar menu ao clicar em um link
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                document.querySelector('.nav-links').classList.remove('active');
+            });
+        });
+
+        // Scroll suave para âncoras
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                if(targetId === '#') return;
+                
+                const targetElement = document.querySelector(targetId);
+                if(targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // Animação de entrada dos elementos
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if(entry.isIntersecting) {
+                    entry.target.classList.add('fade-in');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        // Observar elementos para animação
+        document.querySelectorAll('.fade-in').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Verificar login ao carregar a página
+        window.addEventListener('DOMContentLoaded', checkLogin);
+    </script>
 </body>
 </html>
-
-
-
