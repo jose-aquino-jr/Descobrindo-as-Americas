@@ -120,6 +120,12 @@
             box-shadow: 0 6px 20px rgba(255, 152, 0, 0.4);
         }
 
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
         .btn-secondary {
             background-color: transparent;
             border: 2px solid var(--azul-claro);
@@ -141,6 +147,21 @@
             padding: 0.8rem;
             border-radius: 8px;
             border-left: 4px solid #f44336;
+        }
+
+        .success-message {
+            color: #4CAF50;
+            margin-top: 1rem;
+            display: none;
+            background-color: #e8f5e8;
+            padding: 0.8rem;
+            border-radius: 8px;
+            border-left: 4px solid #4CAF50;
+        }
+
+        .loading {
+            display: none;
+            margin-top: 1rem;
         }
 
         .footer-links {
@@ -190,10 +211,17 @@
                 <input type="text" id="nome" name="nome" placeholder="Digite seu nome completo" required>
             </div>
             
-            <button type="submit" class="btn">Entrar</button>
+            <button type="submit" class="btn" id="loginBtn">
+                <span id="btnText">Entrar</span>
+                <div class="loading" id="loadingSpinner">Carregando...</div>
+            </button>
             
             <div class="error-message" id="errorMessage">
                 RM ou nome inválido. Tente novamente.
+            </div>
+
+            <div class="success-message" id="successMessage">
+                Login realizado com sucesso! Redirecionando...
             </div>
         </form>
         
@@ -203,31 +231,97 @@
     </div>
 
     <script>
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
+        // URL do backend - ATUALIZE COM SUA URL
+        const BACKEND_URL = 'https://backend-quiz-tgd1.onrender.com';
+
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
             const rm = document.getElementById('rm').value.trim();
             const nome = document.getElementById('nome').value.trim();
             const errorMessage = document.getElementById('errorMessage');
+            const successMessage = document.getElementById('successMessage');
+            const loginBtn = document.getElementById('loginBtn');
+            const btnText = document.getElementById('btnText');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            
+            // Reset messages
+            errorMessage.style.display = 'none';
+            successMessage.style.display = 'none';
             
             // Validação simples
             if (rm === '' || nome === '') {
+                errorMessage.textContent = 'RM e nome são obrigatórios.';
                 errorMessage.style.display = 'block';
                 return;
             }
-            
-            // Salvar dados do usuário no localStorage
-            const userData = {
-                rm: rm,
-                nome: nome,
-                loggedIn: true,
-                timestamp: new Date().getTime()
-            };
-            
-            localStorage.setItem('quizUser', JSON.stringify(userData));
-            
-            // Redirecionar para a página inicial
-            window.location.href = 'index.html';
+
+            // Mostrar loading
+            btnText.style.display = 'none';
+            loadingSpinner.style.display = 'block';
+            loginBtn.disabled = true;
+
+            try {
+                console.log('Fazendo login...', { rm, nome });
+                
+                // Fazer login no backend
+                const response = await fetch(`${BACKEND_URL}/api/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        rm: rm,
+                        nome: nome
+                    })
+                });
+
+                console.log('Resposta recebida:', response.status);
+
+                const data = await response.json();
+                console.log('Dados recebidos:', data);
+
+                if (data.success) {
+                    // Login bem-sucedido
+                    successMessage.style.display = 'block';
+                    
+                    // Salvar dados do usuário no localStorage
+                    const userData = {
+                        id: data.usuario.id,
+                        rm: data.usuario.rm,
+                        nome: data.usuario.nome,
+                        loggedIn: true,
+                        timestamp: new Date().getTime()
+                    };
+                    
+                    localStorage.setItem('quizUser', JSON.stringify(userData));
+                    console.log('Usuário salvo no localStorage:', userData);
+                    
+                    // Redirecionar para a página inicial após 1 segundo
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 1000);
+                    
+                } else {
+                    // Erro no login
+                    errorMessage.textContent = data.error || 'Erro ao fazer login. Tente novamente.';
+                    errorMessage.style.display = 'block';
+                    
+                    // Restaurar botão
+                    btnText.style.display = 'block';
+                    loadingSpinner.style.display = 'none';
+                    loginBtn.disabled = false;
+                }
+            } catch (error) {
+                console.error('Erro no login:', error);
+                errorMessage.textContent = 'Erro de conexão. Verifique se o backend está online.';
+                errorMessage.style.display = 'block';
+                
+                // Restaurar botão
+                btnText.style.display = 'block';
+                loadingSpinner.style.display = 'none';
+                loginBtn.disabled = false;
+            }
         });
         
         // Verificar se já está logado e redirecionar
@@ -241,7 +335,21 @@
                     window.location.href = 'index.html';
                 }
             }
+
+            // Testar conexão com o backend
+            testBackendConnection();
         });
+
+        // Função para testar conexão com o backend
+        async function testBackendConnection() {
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/health`);
+                const data = await response.json();
+                console.log('Conexão com backend:', data.status);
+            } catch (error) {
+                console.error('Backend offline:', error);
+            }
+        }
     </script>
 </body>
 </html>
